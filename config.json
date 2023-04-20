@@ -1,0 +1,26 @@
+{
+	"port": 19400,
+	"debugging": false,
+	"debugging_level": 1,
+	"debugging_desc": "이 값이 true이면, 소스코드 중 util.msgbox2()를 사용한 콘솔 로그를 모두 출력하고, false이면 출력하지 않는다. 개발시에는 true, 운영시에는 false를 권장한다.",
+	"pathList": [
+		"/_readviewentries",
+		"/_convert",
+		"/_update"
+	],
+	"downloadfile": "0",
+	"downloadfile_desc": "ElasticSearch Query의 내용을 파일로 다운로드 여부 , 1=사용함, 0=사용하지 않음",
+	"default_checkbox_for_gridview": "0",
+	"synap_path": "/opt/smartview/synap/filter4-v4.24.0-linux_64bit_VC12/v4/snf_exe",
+	"sso": {
+		"use": true,
+		"sso_domain": "saerom.co.kr",
+		"ltpa_domino_secret": "bqa/vdoWvRHg2rYw/++H/FOOlRI=",
+		"ltpaKey": "LtpaToken",
+		"uid": "parking7",
+		"validTime": 30,
+		"validTime_desc": "세션 유지시간, 초, 1=1초, 이 값을 지정하지 않으면 90분동안 세션이 유지됨",
+		"periodTime": 0,
+		"periodTime_desc": "세선의 종료시간후 일정 시간동안 유지하는 초, 0=유예없음, 1=1초"
+	}
+}
