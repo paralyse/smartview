@@ -58,7 +58,28 @@ function getSmartViewQuery(qObj) {
         //NoteView의 사용자가 정의한 Query : 필수
         selectJson = JSON.parse(qObj["query"]);
 
-        // Migration 문서만 표시하는 경우 따로 처리
+        // 특정 파라미터에 따라서 조건 Query문 조정 : start
+        // domadmin => 마이그레이션 + 신규문서의 모든 문서를 볼수 있는 권한으로 처리로 custom : start
+        if (!util.isUndefined(qObj["domadmin"])) {
+            selectJson["query"]["bool"]["filter"] = [];
+
+            var migQueryObj = {};
+            migQueryObj["bool"] = {};
+            migQueryObj["bool"]["must"] = {};
+            migQueryObj["bool"]["must"]["term"] = {};
+            migQueryObj["bool"]["must"]["term"]["docstatus"] = "완료";
+            selectJson["query"]["bool"]["filter"].push(migQueryObj);
+
+            migQueryObj = {};
+            migQueryObj["bool"] = {};
+            migQueryObj["bool"]["must_not"] = {};
+            migQueryObj["bool"]["must_not"]["term"] = {};
+            migQueryObj["bool"]["must_not"]["term"]["received_app"] = "Y";
+            selectJson["query"]["bool"]["filter"].push(migQueryObj);
+        }
+        // 마이그레이션 + 신규문서의 모든 문서를 볼수 있는 권한으로 처리로 custom : end
+
+        // migration => Migration 문서만 표시하는 경우 따로 처리로 custom : start
         if (!util.isUndefined(qObj["migration"])) {
             selectJson["query"]["bool"]["filter"] = [];
 
@@ -67,91 +88,58 @@ function getSmartViewQuery(qObj) {
             migQueryObj["bool"]["must"] = {};
             migQueryObj["bool"]["must"]["term"] = {};
             migQueryObj["bool"]["must"]["term"]["migration"] = "1";
-
             selectJson["query"]["bool"]["filter"].push(migQueryObj);
-			
-			migQueryObj = {};
-			migQueryObj["bool"] = {};
-			migQueryObj["bool"]["must"] = {};
-			migQueryObj["bool"]["must"]["term"] = {};
-			migQueryObj["bool"]["must"]["term"]["docstatus"] = "완료";
-			selectJson["query"]["bool"]["filter"].push(migQueryObj);
-        }
 
-        if (!util.isUndefined(qObj["domadmin"])) {
-            selectJson["query"]["bool"]["filter"] = [
-                {
-                    "bool": {
-                        "must": {
-                            "term": {
-                                "doc_status": "완료"
-                            }
-                        }
-                    }
-                },
-                {
-                    "bool": {
-                        "must_not": {
-                            "term": {
-                                "received_app": "Y"
-                            }
-                        }
-                    }
-                },
-                {
-                    "bool": {
-                        "must": {
-                            "term": {
-                                "co_dvcd": "NS"
-                            }
-                        }
-                    }
-                }
-            ];
-        }
+            migQueryObj = {};
+            migQueryObj["bool"] = {};
+            migQueryObj["bool"]["must"] = {};
+            migQueryObj["bool"]["must"]["term"] = {};
+            migQueryObj["bool"]["must"]["term"]["docstatus"] = "완료";
+            selectJson["query"]["bool"]["filter"].push(migQueryObj);
 
+            if (qObj["migration"] == "1") {
+                // migration = "1" => 부서문서함 일자별 (이관문서)
+                migQueryObj = {};
+                migQueryObj["bool"] = {};
+                migQueryObj["bool"]["must_not"] = {};
+                migQueryObj["bool"]["must_not"]["term"] = {};
+                migQueryObj["bool"]["must_not"]["term"]["received_app"] = "Y";
+                selectJson["query"]["bool"]["filter"].push(migQueryObj);
+            } else {
+                // migration = "2" => 수신함 완료 (이관문서)
+                migQueryObj = {};
+                migQueryObj["bool"] = {};
+                migQueryObj["bool"]["must"] = {};
+                migQueryObj["bool"]["must"]["term"] = {};
+                migQueryObj["bool"]["must"]["term"]["received_app"] = "Y";
+                selectJson["query"]["bool"]["filter"].push(migQueryObj);
+            }
+        }
+        // Migration 문서만 표시하는 경우 따로 처리로 custom : start
+
+        // copnsa => 계약검토의뢰서의 양식만 조회되도록 Custom : start
         if (!util.isUndefined(qObj["copnsa"])) {
-            selectJson["query"]["bool"]["filter"] = [
-                {
-                    "bool": {
-                        "must": {
-                            "term": {
-                                "form_id": "copnsa007"
-                            }
-                        }
-                    }
-                },
-                {
-                    "bool": {
-                        "must": {
-                            "term": {
-                                "doc_status": "완료"
-                            }
-                        }
-                    }
-                },
-                {
-                    "bool": {
-                        "must": {
-                            "term": {
-                                "co_dvcd": "NS"
-                            }
-                        }
-                    }
-                },
-                {
-                    "bool": {
-                        "must_not": {
-                            "term": {
-                                "received_app": "Y"
-                            }
-                        }
-                    }
-                },
-            ];
+            selectJson["query"]["bool"]["filter"] = [];
+
+            var migQueryObj = {};
+            migQueryObj["bool"] = {};
+            migQueryObj["bool"]["must"] = {};
+            migQueryObj["bool"]["must"]["term"] = {};
+            migQueryObj["bool"]["must"]["term"]["docstatus"] = "완료";
+            selectJson["query"]["bool"]["filter"].push(migQueryObj);
+
+            migQueryObj = {};
+            migQueryObj["bool"] = {};
+            migQueryObj["bool"]["must"] = {};
+            migQueryObj["bool"]["must"]["term"] = {};
+            migQueryObj["bool"]["must"]["term"]["form_id"] = "copnsa007";
+            selectJson["query"]["bool"]["filter"].push(migQueryObj);
         }
+        // 계약검토의뢰서의 양식만 조회되도록 Custom : start
+        // 특정 파라미터에 따라서 조건 Query문 조정 : end
 
         //excludes(return 내용중에 배제하는 내용) : 필수
+
         var excludes = new Array();
         excludes.push("body");
         excludes.push("readers");
